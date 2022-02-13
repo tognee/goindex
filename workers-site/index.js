@@ -7,29 +7,38 @@ const DEBUG = true
 
 let gds = []
 
-function html(current_drive_order = 0, model = {}) {
-  return `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
-  <title>${authConfig.siteName}</title>
-  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-  <link href="/style.css" rel="stylesheet">
+async function generateBasePage(event, current_drive_order = 0, model = {}) {
+  let options = {}
+  if (DEBUG) {
+    // customize caching
+    options.cacheControl = {
+      bypassCache: true,
+    }
+  }
+
+  const page = await getAssetFromKV(event, {
+    mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/index.html`, req),
+  }, options)
+
+  // allow headers to be altered
+  let body = await page.text()
+  const response = new Response(body.replace('{SCRIPT_PAGE_DATA}', `
   <script>
     window.drive_names = JSON.parse('${JSON.stringify(authConfig.roots.map(it => it.name))}');
     window.MODEL = JSON.parse('${JSON.stringify(model)}');
     window.current_drive_order = ${current_drive_order};
     window.UI = JSON.parse('${JSON.stringify(uiConfig)}');
   </script>
-  <script src="/app.js"></script>
-</head>
-<body>
-</body>
-</html>
-`;
-};
+  `), page)
+
+  response.headers.set('X-XSS-Protection', '1; mode=block')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('Referrer-Policy', 'unsafe-url')
+  response.headers.set('Feature-Policy', 'none')
+
+  return response
+}
 
 addEventListener('fetch', event => {
   event.respondWith(handleEvent(event))
@@ -130,15 +139,13 @@ async function handleEvent(event) {
       } else {
         const params = url.searchParams;
         // Search page
-        return new Response(html(gd.order, {
+        return generateBasePage(event,
+          gd.order, {
             q: params.get("q") || '',
             is_search_page: true,
             root_type: gd.root_type
-          }),
-          {
-            status: 200,
-            headers: {'Content-Type': 'text/html; charset=utf-8'}
-          });
+          }
+        );
       }
     } else if (command === 'id2path' && request.method === 'POST') {
       return handleId2Path(request, gd)
@@ -178,10 +185,7 @@ async function handleEvent(event) {
   let action = url.searchParams.get('a');
 
   if (path.substr(-1) == '/' || action != null) {
-    return basic_auth_res || new Response(html(gd.order, {root_type: gd.root_type}), {
-      status: 200,
-      headers: {'Content-Type': 'text/html; charset=utf-8'}
-    });
+    return basic_auth_res || generateBasePage(event, gd.order, {root_type: gd.root_type})
   } else {
     if (path.split('/').pop().toLowerCase() == ".password") {
       return basic_auth_res || new Response("", {status: 404});

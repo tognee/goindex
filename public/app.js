@@ -1,28 +1,6 @@
-document.write(`
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-  <script src="//cdn.jsdelivr.net/gh/tognee/goindex@2.0.0/js/flv.min.js"></script>
-  <script src="//cdn.jsdelivr.net/gh/tognee/goindex@2.0.0/js/DPlayer.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/markdown-it@10.0.0/dist/markdown-it.min.js"></script>`);
-
 function init() {
   document.siteName = $("title").html();
   if (UI.dark_mode) $(":root").attr("dark", true)
-  var html = `
-<header>
-		<a href="/"><img class="avatar" src="/avatar.jpg"/></a>
-    <div id="nav" class="navbar"> </div>
-</header>
-<div class="container">
-	<article id="content">
-  </article>
-</div>
-	`;
-  $("body").html(html);
 }
 const Os = {
   isWindows: navigator.platform.toUpperCase().indexOf("WIN") > -1,
