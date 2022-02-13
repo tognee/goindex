@@ -1,0 +1,120 @@
+:root {
+  --background-color: #ffffff;
+  --cards-background-color: #ffffff;
+  --primary-text-color: rgba(0,0,0,.87);
+  --breadcrumbs-border-color: #eee;
+  --table-highlight: rgba(0,0,0,.05);
+  --shadow-color: rgba(204 204 204 / 30%);
+}
+:root[dark] {
+  --background-color: #1D1D1D;
+  --cards-background-color: #181818;
+  --primary-text-color: rgba(255,255,255,.87);
+  --breadcrumbs-border-color: #333;
+  --table-highlight: rgba(0,0,0,.16);
+  --shadow-color: rgba(0 0 0 / 30%);
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  margin: 0px;
+}
+
+span.material-icons {
+  vertical-align: middle;
+}
+.hidden{
+  display: none;
+}
+
+/* Header */
+header {
+  height: 56px;
+  display: flex;
+  overflow: hidden;
+  background-color: var(--cards-background-color);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 9%);
+  align-items: center;
+  padding: 0% 5%;
+}
+header > a, header > a > img {
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Header navbar */
+header .navbar{
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  flex-grow: 2;
+}
+a {
+  color: var(--primary-text-color);
+  text-decoration: none;
+  user-select: none;
+}
+header .navbar > a {
+  font-size: 14.5px;
+  padding: 0 16px;
+  line-height: 30px;
+  border-radius: 30px;
+  display: inline-block;
+  border: 1px solid var(--breadcrumbs-border-color);
+  white-space: nowrap;
+}
+header .navbar > a:last-child, header .navbar > a:hover {
+  background-color: #1e89f2;
+  color: #ffff;
+}
+
+/* Container */
+div.container {
+  max-width: 900px;
+  padding: 0px 8px;
+  margin: 0px auto;
+}
+
+div.container > article {
+  margin: 20px -8px 0 !important;
+  padding: 15px !important;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 0.2em 1em var(--shadow-color);
+  box-shadow: 0 0.2em 1em var(--shadow-color);
+  background-color: var(--cards-background-color)
+}
+
+/* Content Table*/
+#contentTable {
+  width: 100%;
+  border-spacing: 0;
+}
+table th{
+  text-align: left;
+}
+table tr{
+  height: 48px;
+}
+table tr td, table tr th{white-space: nowrap;}
+table tr td:first-child, table tr th:first-child{padding-left: 8px}
+table tr td:last-child, table tr th:last-child{padding-right: 8px}
+table tr.list_item{cursor: pointer;}
+table tr.list_item:hover {
+  background-color: var(--table-highlight)
+}
+table td.right, table th.right{
+  text-align: right;
+}
+
+#count{
+  text-align: center;
+  margin: 8px;
+}
+
+@media screen and (max-width: 35.5em){
+  .hide-on-mobile{
+    display: none;
+  }
+}
