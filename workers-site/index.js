@@ -31,6 +31,8 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
     window.UI = JSON.parse('${JSON.stringify(uiConfig)}');
   </script>`)
     .replace('{{ PAGE_TITLE }}', authConfig.siteName)
+    .replace('{{ PAGE_FAVICON }}', authConfig.siteFavicon)
+    .replace('{{ PAGE_AVATAR }}', authConfig.siteAvatar)
   , page)
 
   response.headers.set('X-XSS-Protection', '1; mode=block')

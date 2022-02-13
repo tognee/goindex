@@ -1,5 +1,7 @@
 export const authConfig = {
   "siteName": "Google Drive Index",
+  "siteFavicon": "",
+  "siteAvatar": "",
   "client_id": "",
   "client_secret": "",
   "refresh_token": "", // auth token
