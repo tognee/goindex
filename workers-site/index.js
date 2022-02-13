@@ -22,14 +22,16 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
 
   // allow headers to be altered
   let body = await page.text()
-  const response = new Response(body.replace('{SCRIPT_PAGE_DATA}', `
+  const response = new Response(body
+    .replace('{{ PAGE_DATA }}', `
   <script>
     window.drive_names = JSON.parse('${JSON.stringify(authConfig.roots.map(it => it.name))}');
     window.MODEL = JSON.parse('${JSON.stringify(model)}');
     window.current_drive_order = ${current_drive_order};
     window.UI = JSON.parse('${JSON.stringify(uiConfig)}');
-  </script>
-  `), page)
+  </script>`)
+    .replace('{{ PAGE_TITLE }}', authConfig.siteName)
+  , page)
 
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('X-Content-Type-Options', 'nosniff')
