@@ -77,7 +77,7 @@ async function handleEvent(event) {
   let path = url.pathname;
 
   function redirectToIndexPage() {
-    return new Response('', {status: 301, headers: {'Location': `${url.origin}${gds.length > 1 ? '/0:/' : '/'}`}});
+    return new Response('', {status: 301, headers: {'Location': `${url.origin}${gds.length > 1 ? '/0:/' : '/'}`}})
   }
 
   if (path == '/' && gds.length > 1) return redirectToIndexPage();
@@ -158,18 +158,20 @@ async function handleEvent(event) {
   */
 
   // Expected path format
-  const common_reg = /^\/\d+:\/.*$/g;
+  const common_reg = /^\/(?<drive>\d+:\/)?(?<path>.*)$/g;
   try {
     let order
-    if (!path.match(common_reg)) {
-      if (gds.length > 1) return redirectToIndexPage();
+    if (!path.match(common_reg)) return redirectToIndexPage()
+    let match = common_reg.exec(path)
+    if (gds.length === 1 && match.groups.drive)
+      return new Response('', {status: 301, headers: {'Location': `${url.origin}/${match.groups.path}`}})
+    if (match.groups.drive){
+      order = Number(match.groups.drive.slice(0, -2))
+    } else {
       order = 0
-    }else{
-      let split = path.split("/");
-      order = Number(split[1].slice(0, -1));
     }
     if (order >= 0 && order < gds.length) {
-      gd = gds[order];
+      gd = gds[order]
     } else {
       return redirectToIndexPage()
     }
