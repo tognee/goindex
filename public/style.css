@@ -1,15 +1,21 @@
 :root {
   --background-color: #ffffff;
   --cards-background-color: #ffffff;
+  --inputs-backgroud-color: #eeeeee;
   --primary-text-color: rgba(0,0,0,.87);
+  --secondary-text-color: rgba(0,0,0,.50);
   --breadcrumbs-border-color: #eee;
   --table-highlight: rgba(0,0,0,.05);
   --shadow-color: rgba(204 204 204 / 30%);
+  --accent-color: #2064c9;
+  --accent-text-color: rgba(255,255,255,.87);
 }
 :root[dark] {
   --background-color: #1D1D1D;
   --cards-background-color: #181818;
+  --inputs-backgroud-color: #1D1D1D;
   --primary-text-color: rgba(255,255,255,.87);
+  --secondary-text-color: rgba(255,255,255,.50);
   --breadcrumbs-border-color: #333;
   --table-highlight: rgba(0,0,0,.16);
   --shadow-color: rgba(0 0 0 / 30%);
@@ -32,6 +38,60 @@ span.material-icons {
   text-align: center;
 }
 
+button {
+  background-color: var(--accent-color);
+  color: var(--accent-text-color);
+  padding: 8px 16px;
+  border: 0px solid;
+  border-radius: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+input[type='text'],
+input[type='password'],
+input[type='number'],
+select {
+	border-radius: 5px;
+	width: calc(100% - 32px);
+	color: var(--primary-text-color);
+  background-color: var(--inputs-backgroud-color);
+  border: 0px solid;
+  padding: 8px 16px;
+}
+
+input[type='checkbox'] {
+	display: inline-block;
+	position: relative;
+	opacity: 0.5;
+	margin: 3px;
+	border: 2px solid gray;
+	border-radius: 2px;
+	background-color: none;
+	padding: 7px;
+}
+
+input[type='checkbox']:checked {
+	opacity: 1;
+	border-width: 0;
+	background-color: var(--accent-color);
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='18' viewBox='3 3 18 18' width='18'%3E%3Cpath fill='%23ffffff' d='M 10,17 5,12 6.41,10.59 10,14.17 17.59,6.58 19,8 Z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E");
+	background-position: center center;
+	padding: 9px;
+	color: var(--primary-text-color);
+}
+
+select {
+	background-clip: border-box;
+	background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath style='fill:gray;fill-opacity:0.5' d='M7 10l5 5 5-5z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E");
+	background-position: calc(100% - 8px) center;
+	background-repeat: no-repeat;
+	background-size: 24px;
+	padding-right: 40px;
+  appearance: none;
+  width: 100%;
+}
+
 /* Header */
 header {
   height: 56px;
@@ -49,10 +109,12 @@ header > a, header > a > img {
 
 /* Header navbar */
 header .navbar{
-  margin-left: 8px;
   display: flex;
   align-items: center;
   flex-grow: 2;
+}
+header .navbar.withAvatar {
+  margin-left: 8px;
 }
 a {
   color: var(--primary-text-color);
@@ -68,7 +130,7 @@ header .navbar > a {
   border: 1px solid var(--breadcrumbs-border-color);
   white-space: nowrap;
 }
-header .navbar > a:last-child, header .navbar > a:hover {
+header .navbar > a:last-of-type, header .navbar > a:hover {
   background-color: #1e89f2;
   color: #ffff;
 }
@@ -87,6 +149,16 @@ div.container > article {
   -webkit-box-shadow: 0 0.2em 1em var(--shadow-color);
   box-shadow: 0 0.2em 1em var(--shadow-color);
   background-color: var(--cards-background-color)
+}
+
+div.container > article > section.input-group {
+  margin-bottom: 12px;
+}
+
+div.container > article > section.input-group > label{
+  display: block;
+  color: var(--secondary-text-color);
+  font-size: .8em;
 }
 
 /* Content Table*/

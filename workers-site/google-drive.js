@@ -1,5 +1,6 @@
 import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
 import { parse } from "cookie"
+import { variableParser } from './utils.js'
 
 const CONSTS = {
   default_file_fields: 'parents,id,name,mimeType,modifiedTime,createdTime,fileExtension,size',
@@ -92,7 +93,9 @@ export class GoogleDrive {
         return promise
       }
     })
-    const _401 = new Response(unauthorizedResponse.body, { ...unauthorizedResponse, status: 401 })
+    let body = await unauthorizedResponse.text()
+    const _401 = new Response(variableParser(body, this.order, {}), { ...unauthorizedResponse, status: 401 })
+    _401.headers.set('Content-Type', 'content-type: text/html; charset=utf-8')
 
     if (user || pass) {
       const cookie = parse(request.headers.get("Cookie") || "")

@@ -1,6 +1,10 @@
 function init() {
   document.siteName = $("title").html();
   if (UI.dark_mode) $(":root").attr("dark", true)
+  if (UI.enable_avatar) {
+    $("#avatar").removeClass('hidden')
+    $('#nav').addClass('withAvatar')
+  }
 }
 const Os = {
   isWindows: navigator.platform.toUpperCase().indexOf("WIN") > -1,
@@ -40,20 +44,22 @@ function render(path) {
   }
 }
 function nav(path) {
-  var model = window.MODEL;
-  var html = "";
-  var cur = window.current_drive_order || 0;
-  var names = window.drive_names;
-  var rootPath = ""
+  let model = window.MODEL;
+  let html = "";
+  let cur = window.current_drive_order || 0;
+  let names = window.drive_names;
+  let rootPath = ""
+  let driveSelect = ''
   if (names.length > 1){
-    html += `<select onchange="window.location.href=this.value" style="overflow:visible;">`;
+    driveSelect += `<select onchange="window.location.href=this.value" style="overflow:visible; width: inherit; margin-left: 8px;">`;
     names.forEach((name, idx) => {
-      html += `<option value="/${idx}:/" ${idx === cur ? 'selected="selected"' : ""}>${name}</option>`;
+      driveSelect += `<option value="/${idx}:/" ${idx === cur ? 'selected="selected"' : ""}>${name}</option>`;
     });
-    html += `</select>`;
+    driveSelect += `</select>`;
     rootPath = `/${cur}:`
   }
   html += `<a href="${rootPath}/" class="root-folder">${document.siteName}</a>`;
+  html += driveSelect
   if (!model.is_search_page) {
     var arr = path.trim("/").split("/");
     var p = "/";

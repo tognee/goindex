@@ -1,7 +1,7 @@
 import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
 import { GoogleDrive } from './google-drive.js'
 import { authConfig } from './config/auth.js'
-import { uiConfig } from './config/ui.js'
+import { variableParser } from './utils.js'
 
 const DEBUG = true
 
@@ -18,18 +18,7 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
 
   // allow headers to be altered
   let body = await page.text()
-  const response = new Response(body
-    .replace('{{ PAGE_DATA }}', `
-  <script>
-    window.drive_names = JSON.parse('${JSON.stringify(authConfig.roots.map(it => it.name))}');
-    window.MODEL = JSON.parse('${JSON.stringify(model)}');
-    window.current_drive_order = ${current_drive_order};
-    window.UI = JSON.parse('${JSON.stringify(uiConfig)}');
-  </script>`)
-    .replace('{{ PAGE_TITLE }}', authConfig.siteName)
-    .replace('{{ PAGE_FAVICON }}', authConfig.siteFavicon)
-    .replace('{{ PAGE_AVATAR }}', authConfig.siteAvatar)
-  , page)
+  const response = new Response(variableParser(body, current_drive_order, model), page)
 
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('X-Content-Type-Options', 'nosniff')

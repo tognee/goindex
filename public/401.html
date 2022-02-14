@@ -1,16 +1,50 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" dark="true">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
     <title>Unauthorized</title>
     <link href="/style.css" rel="stylesheet">
+    {{ PAGE_DATA }}
+    <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function(event) {
+      if (UI.dark_mode) document.querySelector(":root").setAttribute('dark', '')
+
+      let html = ''
+      let cur = window.current_drive_order || 0
+      let names = window.drive_names
+      let rootPath = ""
+      if (names.length > 1){
+        html += `<select onchange="window.location.href=this.value" style="overflow:visible; width: inherit;">`
+        names.forEach((name, idx) => {
+          html += `<option value="/${idx}:/" ${idx === cur ? 'selected="selected"' : ""}>${name}</option>`
+        })
+        html += `</select>`
+        rootPath = `/${cur}:`
+      }
+      document.querySelector("#driveSelector").innerHTML = html
+    })
+    </script>
   </head>
   <body>
     <div class="container">
       <article>
-        <input type="text" name="user" value="">
-        <input type="password" name="pass" value="">
-        <button type="button" name="button" onclick="login()">Login</button>
+        <section style="display: flex; align-items: center; justify-content: space-between;">
+          <h2>Login required</h2>
+          <div id="driveSelector"></div>
+        </section>
+
+        <section class="input-group">
+          <label for="user">Username</label>
+          <input type="text" name="user" value="">
+        </section>
+        <section class="input-group">
+          <label for="pass">Password</label>
+          <input type="password" name="pass" value="">
+        </section>
+
+        <section style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button type="button" name="button" onclick="login()">Login</button>
+        </section>
       </article>
     </div>
   </body>

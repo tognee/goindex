@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <title>404!</title>
     <link href="/style.css" rel="stylesheet">
+    {{ PAGE_DATA }}
+    <script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function(event) {
+      if (UI.dark_mode) document.querySelector(":root").setAttribute('dark', '')
+    })
+    </script>
   </head>
   <body>
     <h1 class="center">There was an error in the app.</h1>
