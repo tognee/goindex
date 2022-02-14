@@ -3,7 +3,7 @@ import { GoogleDrive } from './google-drive.js'
 import { authConfig } from './config/auth.js'
 import { variableParser } from './utils.js'
 
-const DEBUG = true
+const DEBUG = false
 
 let gds = []
 
@@ -187,7 +187,10 @@ async function handleEvent(event) {
           mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/404.html`, req),
         })
 
-        return new Response(notFoundResponse.body, { ...notFoundResponse, status: 404 })
+        let body = await notFoundResponse.text()
+        let response = new Response(variableParser(body, gd.order, {}), { ...notFoundResponse, status: 404 })
+        response.headers.set('Content-Type', 'content-type: text/html; charset=utf-8')
+        return response
       } catch (e) {}
     }
 
