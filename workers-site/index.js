@@ -18,7 +18,6 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
 
   // allow headers to be altered
   let body = await page.text()
-  console.log("A")
   const response = new Response(body
     .replace('{{ PAGE_DATA }}', `
   <script>
@@ -31,7 +30,6 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
     .replace('{{ PAGE_FAVICON }}', authConfig.siteFavicon)
     .replace('{{ PAGE_AVATAR }}', authConfig.siteAvatar)
   , page)
-  console.log("B")
 
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('X-Content-Type-Options', 'nosniff')
