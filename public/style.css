@@ -28,6 +28,9 @@ span.material-icons {
 .hidden{
   display: none;
 }
+.center{
+  text-align: center;
+}
 
 /* Header */
 header {

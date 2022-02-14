@@ -1,3 +1,6 @@
+import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler'
+import { parse } from "cookie"
+
 const CONSTS = {
   default_file_fields: 'parents,id,name,mimeType,modifiedTime,createdTime,fileExtension,size',
   gd_root_type: {
@@ -78,21 +81,27 @@ export class GoogleDrive {
    * @param request
    * @returns {Response|null}
    */
-  basicAuthResponse(request) {
-    const user = this.root.user || '',
-      pass = this.root.pass || '',
-      _401 = new Response('Unauthorized', {
-        headers: {'WWW-Authenticate': `Basic realm="goindex:drive:${this.order}"`},
-        status: 401
-      });
+  async basicAuthResponse(event) {
+    let request = event.request
+    const user = this.root.user || ''
+    const pass = this.root.pass || ''
+
+    let unauthorizedResponse = await getAssetFromKV({
+      request: new Request(`${new URL(request.url).origin}/401.html`),
+      waitUntil(promise) {
+        return promise
+      }
+    })
+    const _401 = new Response(unauthorizedResponse.body, { ...unauthorizedResponse, status: 401 })
+
     if (user || pass) {
-      const auth = request.headers.get('Authorization')
+      const cookie = parse(request.headers.get("Cookie") || "")
+      const auth = cookie[`authorization:${this.order}`]
       if (auth) {
         try {
           const [received_user, received_pass] = atob(auth.split(' ').pop()).split(':');
           return (received_user === user && received_pass === pass) ? null : _401;
-        } catch (e) {
-        }
+        } catch (e) { /* empty */ }
       }
     } else return null;
     return _401;
@@ -122,9 +131,7 @@ export class GoogleDrive {
     let name = arr.pop();
     name = decodeURIComponent(name).replace(/\'/g, "\\'");
     let dir = arr.join('/') + '/';
-    console.log(name, dir);
     let parent = await this.findPathId(dir);
-    console.log(parent);
     let url = 'https://www.googleapis.com/drive/v3/files';
     let params = {'includeItemsFromAllDrives': true, 'supportsAllDrives': true};
     params.q = `'${parent}' in parents and name = '${name}' and trashed = false`;
@@ -133,7 +140,6 @@ export class GoogleDrive {
     let requestOption = await this.requestOption();
     let response = await fetch(url, requestOption);
     let obj = await response.json();
-    console.log(obj);
     return obj.files[0];
   }
 
@@ -175,7 +181,6 @@ export class GoogleDrive {
 
 
   async _ls(parent, page_token = null, page_index = 0) {
-    console.log("_ls", parent);
 
     if (parent == undefined) {
       return null;
@@ -221,8 +226,6 @@ export class GoogleDrive {
     if (this.passwords[path] !== undefined) {
       return this.passwords[path];
     }
-
-    console.log("load", path, ".password", this.passwords[path]);
 
     let file = await this.file(path + '.password');
     if (file == undefined) {
@@ -305,7 +308,6 @@ export class GoogleDrive {
 
     let url = 'https://www.googleapis.com/drive/v3/files';
     url += '?' + this.enQuery(params);
-    console.log(params)
     let requestOption = await this.requestOption();
     let response = await fetch(url, requestOption);
     let res_obj = await response.json();
@@ -422,7 +424,6 @@ export class GoogleDrive {
     let c_id = this.paths[c_path];
 
     let arr = path.trim('/').split('/');
-    console.log(arr)
     for (let name of arr) {
       c_path += name + '/';
 
@@ -436,14 +437,11 @@ export class GoogleDrive {
         break;
       }
     }
-    console.log(this.paths);
     return this.paths[path];
   }
 
   async _findDirId(parent, name) {
     name = decodeURIComponent(name).replace(/\'/g, "\\'");
-
-    console.log("_findDirId", parent, name);
 
     if (parent == undefined) {
       return null;
@@ -464,7 +462,6 @@ export class GoogleDrive {
   }
 
   async accessToken() {
-    console.log("accessToken");
     if (this.authConfig.expires == undefined || this.authConfig.expires < Date.now()) {
       const obj = await this.fetchAccessToken();
       if (obj.access_token != undefined) {
@@ -476,7 +473,6 @@ export class GoogleDrive {
   }
 
   async fetchAccessToken() {
-    console.log("fetchAccessToken");
     const url = "https://www.googleapis.com/oauth2/v4/token";
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded'
@@ -502,7 +498,6 @@ export class GoogleDrive {
     let response;
     for (let i = 0; i < 3; i++) {
       response = await fetch(url, requestOption);
-      console.log(response.status);
       if (response.status != 403) {
         break;
       }
@@ -529,7 +524,6 @@ export class GoogleDrive {
     return new Promise(function (resolve, reject) {
       let i = 0;
       setTimeout(function () {
-        console.log('sleep' + ms);
         i++;
         if (i >= 2) reject(new Error('i>=2'));
         else resolve(i);

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" dark="true">
+  <head>
+    <meta charset="utf-8">
+    <title>Unauthorized</title>
+    <link href="/style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <article>
+        <input type="text" name="user" value="">
+        <input type="password" name="pass" value="">
+        <button type="button" name="button" onclick="login()">Login</button>
+      </article>
+    </div>
+  </body>
+  <script type="text/javascript">
+  function login(){
+    const user = document.querySelector("input[name='user']").value
+    const pass = document.querySelector("input[name='pass']").value
+
+    let path = location.pathname
+
+    const common_reg = /^\/(?<drive>\d+:\/)?(?<path>.*)$/g;
+    let order
+    if (!path.match(common_reg)) return
+    let match = common_reg.exec(path)
+    if (match.groups.drive){
+      order = Number(match.groups.drive.slice(0, -2))
+    } else {
+      order = 0
+    }
+
+    setCookie('authorization:'+order, window.btoa(`${user}:${pass}`), 30)
+
+    location.reload()
+  }
+
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+  </script>
+</html>

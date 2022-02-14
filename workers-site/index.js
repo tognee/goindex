@@ -8,20 +8,17 @@ const DEBUG = true
 let gds = []
 
 async function generateBasePage(event, current_drive_order = 0, model = {}) {
-  let options = {}
-  if (DEBUG) {
-    // customize caching
-    options.cacheControl = {
-      bypassCache: true,
-    }
-  }
 
-  const page = await getAssetFromKV(event, {
-    mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/index.html`, req),
-  }, options)
+  const page = await getAssetFromKV({
+    request: new Request(`${new URL(event.request.url).origin}/index.html`),
+    waitUntil(promise) {
+      return promise
+    }
+  })
 
   // allow headers to be altered
   let body = await page.text()
+  console.log("A")
   const response = new Response(body
     .replace('{{ PAGE_DATA }}', `
   <script>
@@ -34,6 +31,7 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
     .replace('{{ PAGE_FAVICON }}', authConfig.siteFavicon)
     .replace('{{ PAGE_AVATAR }}', authConfig.siteAvatar)
   , page)
+  console.log("B")
 
   response.headers.set('X-XSS-Protection', '1; mode=block')
   response.headers.set('X-Content-Type-Options', 'nosniff')
@@ -54,17 +52,17 @@ async function handleEvent(event) {
   // Initiate google drives if array is empty
   if (gds.length === 0) {
     for (let i = 0; i < authConfig.roots.length; i++) {
-      const gd = new GoogleDrive(authConfig, i);
-      await gd.init();
+      const gd = new GoogleDrive(authConfig, i)
+      await gd.init()
       gds.push(gd)
     }
     // This operation is parallel to improve efficiency
-    let tasks = [];
+    let tasks = []
     gds.forEach(gd => {
-      tasks.push(gd.initRootType());
-    });
+      tasks.push(gd.initRootType())
+    })
     for (let task of tasks) {
-      await task;
+      await task
     }
   }
 
@@ -72,18 +70,24 @@ async function handleEvent(event) {
 
   // Extract drive order from path
   // And get the corresponding gd instance according to drive order
-  let gd;
-  let url = new URL(request.url);
-  let path = url.pathname;
+  let gd
+  let url = new URL(request.url)
+  let path = url.pathname
 
   function redirectToIndexPage() {
     return new Response('', {status: 301, headers: {'Location': `${url.origin}${gds.length > 1 ? '/0:/' : '/'}`}})
   }
+  if (path == '/' && gds.length > 1) return redirectToIndexPage()
 
-  if (path == '/' && gds.length > 1) return redirectToIndexPage();
-
-  if (['/404.html', '/app.js', '/avatar.png', '/avatar.jpg', '/favicon.ico', '/favicon.png', '/style.css'].includes(path.toLowerCase())) {
-    try {
+  try {
+    if ([
+      '/app.js',
+      '/avatar.png',
+      '/avatar.jpg',
+      '/favicon.ico',
+      '/favicon.png',
+      '/style.css'
+    ].includes(path.toLowerCase())) {
       if (DEBUG) {
         // customize caching
         options.cacheControl = {
@@ -103,105 +107,104 @@ async function handleEvent(event) {
       response.headers.set('Feature-Policy', 'none')
 
       return response
-
-    } catch (e) {
-      // if an error is thrown try to serve the asset at 404.html
-      if (!DEBUG) {
-        try {
-          let notFoundResponse = await getAssetFromKV(event, {
-            mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/404.html`, req),
-          })
-
-          return new Response(notFoundResponse.body, { ...notFoundResponse, status: 404 })
-        } catch (e) {}
-      }
-
-      return new Response(e.message || e.toString(), { status: 500 })
     }
-  }
 
-  // Special command format
-  /*
-  const command_reg = /^\/(?<num>\d+):(?<command>[a-zA-Z0-9]+)$/g;
-  const match = command_reg.exec(path);
-  if (match) {
-    const num = match.groups.num;
-    const order = Number(num);
-    if (order >= 0 && order < gds.length) {
-      gd = gds[order];
-    } else {
-      return redirectToIndexPage()
-    }
-    // basic auth
-    for (const r = gd.basicAuthResponse(request); r;) return r;
-    const command = match.groups.command;
-    // search for
-    if (command === 'search') {
-      if (request.method === 'POST') {
-        // search results
-        return handleSearch(request, gd);
+    // Special command format
+    /*
+    const command_reg = /^\/(?<num>\d+):(?<command>[a-zA-Z0-9]+)$/g;
+    const match = command_reg.exec(path);
+    if (match) {
+      const num = match.groups.num;
+      const order = Number(num);
+      if (order >= 0 && order < gds.length) {
+        gd = gds[order];
       } else {
-        const params = url.searchParams;
-        // Search page
-        return generateBasePage(event,
-          gd.order, {
-            q: params.get("q") || '',
-            is_search_page: true,
-            root_type: gd.root_type
-          }
-        );
+        return redirectToIndexPage()
       }
-    } else if (command === 'id2path' && request.method === 'POST') {
-      return handleId2Path(request, gd)
+      // basic auth
+      for (const r = await gd.basicAuthResponse(request); r;) return r;
+      const command = match.groups.command;
+      // search for
+      if (command === 'search') {
+        if (request.method === 'POST') {
+          // search results
+          return handleSearch(request, gd);
+        } else {
+          const params = url.searchParams;
+          // Search page
+          return generateBasePage(event,
+            gd.order, {
+              q: params.get("q") || '',
+              is_search_page: true,
+              root_type: gd.root_type
+            }
+          );
+        }
+      } else if (command === 'id2path' && request.method === 'POST') {
+        return handleId2Path(request, gd)
+      }
     }
-  }
-  */
+    */
 
-  // Expected path format
-  const common_reg = /^\/(?<drive>\d+:\/)?(?<path>.*)$/g;
-  try {
-    let order
-    if (!path.match(common_reg)) return redirectToIndexPage()
-    let match = common_reg.exec(path)
-    if (gds.length === 1 && match.groups.drive)
-      return new Response('', {status: 301, headers: {'Location': `${url.origin}/${match.groups.path}`}})
-    if (match.groups.drive){
-      order = Number(match.groups.drive.slice(0, -2))
-    } else {
-      order = 0
-    }
-    if (order >= 0 && order < gds.length) {
-      gd = gds[order]
-    } else {
+    // Expected path format
+    const common_reg = /^\/(?<drive>\d+:\/)?(?<path>.*)$/g;
+    try {
+      let order
+      if (!path.match(common_reg)) return redirectToIndexPage()
+      let match = common_reg.exec(path)
+      if (gds.length === 1 && match.groups.drive)
+        return new Response('', {status: 301, headers: {'Location': `${url.origin}/${match.groups.path}`}})
+      if (match.groups.drive){
+        order = Number(match.groups.drive.slice(0, -2))
+      } else {
+        order = 0
+      }
+      if (order >= 0 && order < gds.length) {
+        gd = gds[order]
+      } else {
+        return redirectToIndexPage()
+      }
+    } catch (e) {
+      console.log(e)
       return redirectToIndexPage()
+    }
+
+    // basic auth
+    const basic_auth_res = await gd.basicAuthResponse(event)
+
+    path = path.replace(gd.url_path_prefix, '') || '/';
+    if (request.method == 'POST') {
+      return basic_auth_res || apiRequest(request, gd);
+    }
+
+    let action = url.searchParams.get('a');
+
+    if (path.substr(-1) == '/' || action != null) {
+      return basic_auth_res || generateBasePage(event, gd.order, {root_type: gd.root_type})
+    } else {
+      if (path.split('/').pop().toLowerCase() == ".password") {
+        return basic_auth_res || new Response("", {status: 404});
+      }
+      let file = await gd.file(path);
+      let range = request.headers.get('Range');
+      const inline_down = 'true' === url.searchParams.get('inline');
+      const filename_down = url.searchParams.get('filename');
+      if (gd.root.protect_file_link && basic_auth_res) return basic_auth_res;
+      return gd.down(file.id, range, inline_down, filename_down);
     }
   } catch (e) {
-    console.log(e)
-    return redirectToIndexPage()
-  }
+    // if an error is thrown try to serve the asset at 404.html
+    if (!DEBUG) {
+      try {
+        let notFoundResponse = await getAssetFromKV(event, {
+          mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/404.html`, req),
+        })
 
-  // basic auth
-  const basic_auth_res = gd.basicAuthResponse(request);
-
-  path = path.replace(gd.url_path_prefix, '') || '/';
-  if (request.method == 'POST') {
-    return basic_auth_res || apiRequest(request, gd);
-  }
-
-  let action = url.searchParams.get('a');
-
-  if (path.substr(-1) == '/' || action != null) {
-    return basic_auth_res || generateBasePage(event, gd.order, {root_type: gd.root_type})
-  } else {
-    if (path.split('/').pop().toLowerCase() == ".password") {
-      return basic_auth_res || new Response("", {status: 404});
+        return new Response(notFoundResponse.body, { ...notFoundResponse, status: 404 })
+      } catch (e) {}
     }
-    let file = await gd.file(path);
-    let range = request.headers.get('Range');
-    const inline_down = 'true' === url.searchParams.get('inline');
-    const filename_down = url.searchParams.get('filename');
-    if (gd.root.protect_file_link && basic_auth_res) return basic_auth_res;
-    return gd.down(file.id, range, inline_down, filename_down);
+
+    return new Response((e.message || e.toString()) + "\n" + e.stack, { status: 500 })
   }
 }
 
@@ -220,7 +223,6 @@ async function apiRequest(request, gd) {
     // check .password file, if `enable_password_file_verify` is true
     if (authConfig['enable_password_file_verify']) {
       let password = await gd.password(path);
-      // console.log("dir password", password);
       if (password && password.replace("\n", "") !== form.get('password')) {
         let html = `{"error": {"code": 401,"message": "password error."}}`;
         return new Response(html, option);
