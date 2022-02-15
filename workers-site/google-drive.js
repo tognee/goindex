@@ -84,8 +84,11 @@ export class GoogleDrive {
    */
   async basicAuthResponse(event) {
     let request = event.request
+    // Backwards Compatibility
     const user = this.root.user || ''
     const pass = this.root.pass || ''
+    let users = this.root.users || {}
+    if (user && !users[user]) users[user] = pass
 
     let _401
 
@@ -100,17 +103,17 @@ export class GoogleDrive {
       _401.headers.set('Content-Type', 'text/html')
     }
 
-    if (user || pass) {
+    if (Object.keys(users).length) {
       const cookie = parse(request.headers.get("Cookie") || "")
       const auth = cookie[`authorization:${this.order}`]
       if (auth) {
         try {
-          const [received_user, received_pass] = atob(auth.split(' ').pop()).split(':');
-          return (received_user === user && received_pass === pass) ? null : _401;
+          const [received_user, received_pass] = atob(auth.split(' ').pop()).split(':')
+          return (users[received_user] && users[received_user] === received_pass) ? null : _401
         } catch (e) { /* empty */ }
       }
-    } else return null;
-    return _401;
+    } else return null
+    return _401
   }
 
   async down(id, range = '', inline = false, filename = false) {
