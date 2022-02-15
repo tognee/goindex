@@ -191,7 +191,7 @@ function append_files_to_list(path, files) {
         c += " view"
       }
       html += `
-        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location='${p}'">
+        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${encodeURI(p)}\`">
           <td title="${item.name}"><span class="material-icons">insert_drive_file</span> ${item.name}</td>
           <td class="right hide-on-mobile">${item["modifiedTime"]}</td>
           <td class="right hide-on-mobile">${item["size"]}</td>
