@@ -19,13 +19,7 @@ async function generateBasePage(event, current_drive_order = 0, model = {}) {
   // allow headers to be altered
   let body = await page.text()
   const response = new Response(variableParser(body, current_drive_order, model), page)
-
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('Referrer-Policy', 'unsafe-url')
-  response.headers.set('Feature-Policy', 'none')
-
+  response.headers.set('Content-Type', 'content-type: text/html; charset=utf-8')
   return response
 }
 
@@ -84,15 +78,7 @@ async function handleEvent(event) {
 
       const page = await getAssetFromKV(event, options)
 
-      // allow headers to be altered
       const response = new Response(page.body, page)
-
-      response.headers.set('X-XSS-Protection', '1; mode=block')
-      response.headers.set('X-Content-Type-Options', 'nosniff')
-      response.headers.set('X-Frame-Options', 'DENY')
-      response.headers.set('Referrer-Policy', 'unsafe-url')
-      response.headers.set('Feature-Policy', 'none')
-
       return response
     }
 
@@ -163,7 +149,6 @@ async function handleEvent(event) {
     if (request.method == 'POST') {
       return basic_auth_res || apiRequest(request, gd);
     }
-
     let action = url.searchParams.get('a');
 
     if (path.substr(-1) == '/' || action != null) {
@@ -172,12 +157,15 @@ async function handleEvent(event) {
       if (path.split('/').pop().toLowerCase() == ".password") {
         return basic_auth_res || new Response("", {status: 404});
       }
-      let file = await gd.file(path);
-      let range = request.headers.get('Range');
-      const inline_down = 'true' === url.searchParams.get('inline');
-      const filename_down = url.searchParams.get('filename');
-      if (gd.root.protect_file_link && basic_auth_res) return basic_auth_res;
-      return gd.down(file.id, range, inline_down, filename_down);
+      let file = await gd.file(path)
+      if (file.mimeType === "application/vnd.google-apps.folder"){
+        return new Response('', {status: 301, headers: {'Location': `${url.origin}${path}/`}})
+      }
+      let range = request.headers.get('Range')
+      const inline_down = 'true' === url.searchParams.get('inline')
+      const filename_down = url.searchParams.get('filename')
+      if (gd.root.protect_file_link && basic_auth_res) return basic_auth_res
+      return gd.down(file.id, range, inline_down, filename_down)
     }
   } catch (e) {
     // if an error is thrown try to serve the asset at 404.html
