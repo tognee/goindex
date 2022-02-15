@@ -504,7 +504,7 @@ function formatDatetime(utc_datetime) {
     "-" +
     month.substring(month.length - 2, month.length) +
     "-" +
-    day.substring(date.length - 2, date.length) +
+    day.substring(day.length - 2, day.length) +
     " " +
     hour.substring(hour.length - 2, hour.length) +
     ":" +
