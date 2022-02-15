@@ -206,6 +206,14 @@ header .navbar > a:last-of-type, header .navbar > a:hover {
   color: #ffff;
 }
 
+.icon-file {
+  display: flex;
+  align-items: center;
+}
+.icon-file .material-icons {
+  margin-right: 8px;
+}
+
 /* Container */
 div.container {
   max-width: 900px;
@@ -243,7 +251,7 @@ table th{
 table tr{
   height: 48px;
 }
-table tr td, table tr th{white-space: nowrap;}
+table tr .no-wrap {white-space: nowrap;}
 table tr td:first-child, table tr th:first-child{padding-left: 8px}
 table tr td:last-child, table tr th:last-child{padding-right: 8px}
 table tr.list_item{cursor: pointer;}

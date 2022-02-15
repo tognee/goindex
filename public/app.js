@@ -81,11 +81,11 @@ function list(path) {
           File
           <span class="material-icons icon-sort" data-sort="name" data-order="more">expand_more</span>
         </th>
-        <th class="right hide-on-mobile">
+        <th class="right hide-on-mobile no-wrap">
           Date Modified
           <span class="material-icons icon-sort" data-sort="name" data-order="more">expand_more</span>
         </th>
-        <th class="right hide-on-mobile">
+        <th class="right hide-on-mobile no-wrap">
           Size
           <span class="material-icons icon-sort" data-sort="name" data-order="more">expand_more</span>
         </th>
@@ -173,10 +173,15 @@ function append_files_to_list(path, files) {
     item.size = formatFileSize(item.size)
     if (item.mimeType == "application/vnd.google-apps.folder") {
       html += `
-        <tr class="list_item" onclick="window.location='${p}'">
-          <td title="${item.name}"><span class="material-icons">folder_open</span> ${item.name}</td>
-          <td class="right hide-on-mobile">${item["modifiedTime"]}</td>
-          <td class="right hide-on-mobile">${item["size"]}</td>
+        <tr class="list_item" onclick="window.location=\`${encodeURI(p)}\`">
+          <td title="${item.name}">
+            <div class="icon-file">
+              <span class="material-icons">folder_open</span>
+              <span>${item.name}</span>
+            </div>
+          </td>
+          <td class="right hide-on-mobile no-wrap">${item["modifiedTime"]}</td>
+          <td class="right hide-on-mobile no-wrap">${item["size"]}</td>
         </tr>`
     } else {
       let p = path + item.name
@@ -192,9 +197,14 @@ function append_files_to_list(path, files) {
       }
       html += `
         <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${encodeURI(p)}\`">
-          <td title="${item.name}"><span class="material-icons">insert_drive_file</span> ${item.name}</td>
-          <td class="right hide-on-mobile">${item["modifiedTime"]}</td>
-          <td class="right hide-on-mobile">${item["size"]}</td>
+          <td title="${item.name}">
+            <div class="icon-file">
+              <span class="material-icons">insert_drive_file</span>
+              <span>${item.name}</span>
+            </div>
+          </td>
+          <td class="right hide-on-mobile no-wrap">${item["modifiedTime"]}</td>
+          <td class="right hide-on-mobile no-wrap">${item["size"]}</td>
         </tr>`
     }
   }
