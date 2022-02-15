@@ -209,6 +209,7 @@ body > header .navbar > a:last-of-type, header .navbar > a:hover {
 .icon-file {
   display: flex;
   align-items: center;
+  margin: 12px 0px;
 }
 .icon-file .material-icons {
   margin-right: 8px;
