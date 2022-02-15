@@ -183,7 +183,7 @@ function append_files_to_list(path, files) {
     item.size = formatFileSize(item.size)
     if (item.mimeType == "application/vnd.google-apps.folder") {
       html += `
-        <tr class="list_item" onclick="window.location=\`${encodeURI(p)}\`">
+        <tr class="list_item" onclick="window.location=\`${p.replace('`', '%60')}\`">
           <td title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">folder_open</span>
@@ -206,7 +206,7 @@ function append_files_to_list(path, files) {
         c += " view"
       }
       html += `
-        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${encodeURI(p)}\`">
+        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${p.replace('`', '%60')}\`">
           <td title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">insert_drive_file</span>
