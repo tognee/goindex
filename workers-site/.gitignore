@@ -2,3 +2,4 @@ node_modules
 dist
 worker
 config/auth.js
+config/ui.js
