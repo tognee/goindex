@@ -51,9 +51,9 @@ async function handleEvent(event) {
   let path = url.pathname
 
   function redirectToIndexPage() {
-    return new Response('', {status: 301, headers: {'Location': `${url.origin}${gds.length > 1 ? '/0:/' : '/'}`}})
+    return new Response('', {status: 307, headers: {'Location': `${url.origin}${gds.length === 1 ? '/' : '/0:/'}`}})
   }
-  if (path == '/' && gds.length > 1) return redirectToIndexPage()
+  if (path === '/' && gds.length > 1) return redirectToIndexPage()
 
   try {
     if ([
@@ -121,7 +121,7 @@ async function handleEvent(event) {
       if (!path.match(common_reg)) return redirectToIndexPage()
       let match = common_reg.exec(path)
       if (gds.length === 1 && match.groups.drive)
-        return new Response('', {status: 301, headers: {'Location': `${url.origin}/${match.groups.path}`}})
+        return new Response('', {status: 307, headers: {'Location': `${url.origin}/${match.groups.path}`}})
       if (match.groups.drive){
         order = Number(match.groups.drive.slice(0, -2))
       } else {
@@ -154,7 +154,7 @@ async function handleEvent(event) {
       }
       let file = await gd.file(path)
       if (file.mimeType === "application/vnd.google-apps.folder"){
-        return new Response('', {status: 301, headers: {'Location': `${url.origin}${path}/`}})
+        return new Response('', {status: 307, headers: {'Location': `${url.origin}${path}/`}})
       }
       let range = request.headers.get('Range')
       const inline_down = 'true' === url.searchParams.get('inline')
