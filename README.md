@@ -19,6 +19,6 @@
   - Add your `roots`, the folder ids are taken from the url of the folder on Google Drive
 - Rename `workers-site/config/ui.example.js` into `ui.js` and then edit it as you like
 
-# This repo is based on top of the code of
+## Thanks to:
 - [donwa](https://github.com/donwa)
 - [yanzai](https://github.com/yanzai/goindex)
