@@ -183,15 +183,15 @@ function append_files_to_list(path, files) {
     item.size = formatFileSize(item.size)
     if (item.mimeType == "application/vnd.google-apps.folder") {
       html += `
-        <tr class="list_item" onclick="window.location=\`${p.replace('`', '%60')}\`">
+        <tr class="list_item" onclick="window.location=\`${p.replace('`', '%60').replace('${', '%24%7B')}\`">
           <td title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">folder_open</span>
-              <span>${item.name}</span>
+              <span class="filename">${item.name}</span>
             </div>
           </td>
-          <td class="right hide-on-mobile no-wrap">${item["modifiedTime"]}</td>
-          <td class="right hide-on-mobile no-wrap">${item["size"]}</td>
+          <td class="right hide-on-mobile no-wrap"><span>${item["modifiedTime"]}</span></td>
+          <td class="right hide-on-mobile no-wrap"><span>${item["size"]}</span></td>
         </tr>`
     } else {
       let p = path + item.name
@@ -206,15 +206,15 @@ function append_files_to_list(path, files) {
         c += " view"
       }
       html += `
-        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${p.replace('`', '%60')}\`">
+        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${p.replace('`', '%60').replace('${', '%24%7B')}\`">
           <td title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">insert_drive_file</span>
-              <span>${item.name}</span>
+              <span class="filename">${item.name}</span>
             </div>
           </td>
-          <td class="right hide-on-mobile no-wrap">${item["modifiedTime"]}</td>
-          <td class="right hide-on-mobile no-wrap">${item["size"]}</td>
+          <td class="right hide-on-mobile no-wrap"><span>${item["modifiedTime"]}</span></td>
+          <td class="right hide-on-mobile no-wrap"><span>${item["size"]}</span></td>
         </tr>`
     }
   }
