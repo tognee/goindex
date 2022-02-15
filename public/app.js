@@ -179,7 +179,7 @@ function append_files_to_list(path, files) {
     let item = files[i]
     let p = path + item.name + "/"
     if (item.size == undefined) item.size = ""
-    item.modifiedTime = utc2beijing(item.modifiedTime)
+    item.modifiedTime = formatDatetime(item.modifiedTime)
     item.size = formatFileSize(item.size)
     if (item.mimeType == "application/vnd.google-apps.folder") {
       html += `
@@ -489,29 +489,22 @@ function file_image(path) {
     file(filepath)
   })
 }
-function utc2beijing(utc_datetime) {
-  let T_pos = utc_datetime.indexOf("T")
-  let Z_pos = utc_datetime.indexOf("Z")
-  let year_month_day = utc_datetime.substr(0, T_pos)
-  let hour_minute_second = utc_datetime.substr(T_pos + 1, Z_pos - T_pos - 1)
-  let new_datetime = year_month_day + " " + hour_minute_second
-  timestamp = new Date(Date.parse(new_datetime))
-  timestamp = timestamp.getTime()
-  timestamp = timestamp / 1000
-  let unixtimestamp = timestamp + 8 * 60 * 60
-  unixtimestamp = new Date(unixtimestamp * 1000)
-  let year = 1900 + unixtimestamp.getYear()
-  let month = "0" + (unixtimestamp.getMonth() + 1)
-  let date = "0" + unixtimestamp.getDate()
-  let hour = "0" + unixtimestamp.getHours()
-  let minute = "0" + unixtimestamp.getMinutes()
-  let second = "0" + unixtimestamp.getSeconds()
+function formatDatetime(utc_datetime) {
+  let iso_date = new Date(utc_datetime)
+  let unixtimestamp = Date.UTC(iso_date.getFullYear(), iso_date.getMonth(), iso_date.getDate(), iso_date.getHours(), iso_date.getMinutes(), iso_date.getSeconds())
+  let date = new Date(unixtimestamp)
+  let year = date.getFullYear()
+  let month = "0" + (date.getMonth() + 1)
+  let day = "0" + date.getDate()
+  let hour = "0" + date.getHours()
+  let minute = "0" + date.getMinutes()
+  let second = "0" + date.getSeconds()
   return (
     year +
     "-" +
     month.substring(month.length - 2, month.length) +
     "-" +
-    date.substring(date.length - 2, date.length) +
+    day.substring(date.length - 2, date.length) +
     " " +
     hour.substring(hour.length - 2, hour.length) +
     ":" +
@@ -544,15 +537,6 @@ String.prototype.trim = function (char) {
     )
   }
   return this.replace(/^\s+|\s+$/g, "")
-}
-function markdown(el, data) {
-  if (window.md == undefined) {
-    window.md = window.markdownit()
-    markdown(el, data)
-  } else {
-    let html = md.render(data)
-    $(el).show().html(html)
-  }
 }
 window.onpopstate = function () {
   let path = window.location.pathname

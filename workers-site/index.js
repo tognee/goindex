@@ -9,17 +9,12 @@ let gds = []
 
 async function generateBasePage(event, current_drive_order = 0, model = {}) {
 
-  const page = await getAssetFromKV({
-    request: new Request(`${new URL(event.request.url).origin}/index.html`),
-    waitUntil(promise) {
-      return promise
-    }
+  let page = await getAssetFromKV(event, {
+    mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/index.html`, req),
   })
-
-  // allow headers to be altered
   let body = await page.text()
   const response = new Response(variableParser(body, current_drive_order, model), page)
-  response.headers.set('Content-Type', 'content-type: text/html; charset=utf-8')
+  response.headers.set('Content-Type', 'text/html')
   return response
 }
 
@@ -177,7 +172,7 @@ async function handleEvent(event) {
 
         let body = await notFoundResponse.text()
         let response = new Response(variableParser(body, gd.order, {}), { ...notFoundResponse, status: 404 })
-        response.headers.set('Content-Type', 'content-type: text/html; charset=utf-8')
+        response.headers.set('Content-Type', 'text/html')
         return response
       } catch (e) {}
     }

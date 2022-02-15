@@ -87,15 +87,18 @@ export class GoogleDrive {
     const user = this.root.user || ''
     const pass = this.root.pass || ''
 
-    let unauthorizedResponse = await getAssetFromKV({
-      request: new Request(`${new URL(request.url).origin}/401.html`),
-      waitUntil(promise) {
-        return promise
-      }
-    })
-    let body = await unauthorizedResponse.text()
-    const _401 = new Response(variableParser(body, this.order, {}), { ...unauthorizedResponse, status: 401 })
-    _401.headers.set('Content-Type', 'content-type: text/html; charset=utf-8')
+    let _401
+
+    if (request.method == 'POST'){
+      _401 = new Response(`{"error": {"code": 401,"message": "unauthorized"}}`, { status: 401 })
+    } else {
+      let unauthorizedResponse = await getAssetFromKV(event, {
+        mapRequestToAsset: req => new Request(`${new URL(req.url).origin}/401.html`, req),
+      })
+      let body = await unauthorizedResponse.text()
+      _401 = new Response(variableParser(body, this.order, {}), { ...unauthorizedResponse, status: 401 })
+      _401.headers.set('Content-Type', 'text/html')
+    }
 
     if (user || pass) {
       const cookie = parse(request.headers.get("Cookie") || "")
