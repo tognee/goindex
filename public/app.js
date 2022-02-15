@@ -53,6 +53,16 @@ function nav(path) {
   }
   html += `<a href="${rootPath}/" class="root-folder">${document.siteName}</a>`
   html += driveSelect
+  let arr = path.trim("/").split("/")
+  let p = "/"
+  if (arr.length && arr[0].match(/\d+:$/g)) arr.shift() // Remove drive number from path
+  for (let i in arr) {
+    let n = arr[i]
+    n = decodeURI(n)
+    p += n + "/"
+    if (n == "") break
+    html += `<span class="material-icons" style="margin:0;">chevron_right</span><a href="${rootPath}${p}">${n}</a>`
+  }
   $("#nav").html(html)
 }
 
