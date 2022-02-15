@@ -23,7 +23,6 @@ function getDocumentHeight() {
     document.documentElement.clientHeight
   )
 }
-const loading_bar = `<div id="loading-bar" class="progress"><div class="bar indeterminate"></div></div>`
 function render(path) {
   if (path.indexOf("?") > 0) path = path.substr(0, path.indexOf("?"))
   $("title").html(`${document.siteName}`)
@@ -103,7 +102,7 @@ function list(path) {
     </header>
     <section id="list"> </section>
   </div>
-  ${loading_bar}
+  <div id="loading-bar" class="progress"><div class="bar indeterminate"></div></div>
   <div id="count" class="hidden">Total <span class="number"></span> Item</div>`
   $("#content").html(content)
   let password = localStorage.getItem("password" + path)
@@ -115,17 +114,17 @@ function list(path) {
 
     $("#loading-bar").remove()
     $("#spinner").remove()
-    // it's a single page
+    // There are no other files
     if (res.nextPageToken === null) {
       $(window).off("scroll")
       window.scroll_status.event_bound = !1
       window.scroll_status.loading_lock = !1
       append_files_to_list(path, res.data.files)
-    // there are multiple pages
+    // There are still files to load
     } else {
       append_files_to_list(path, res.data.files)
       if (window.scroll_status.event_bound !== !0) {
-        // ???
+        // When you get the the end of the page
         $(window).on("scroll", function () {
           let scrollTop = $(this).scrollTop()
           let scrollHeight = getDocumentHeight()
@@ -133,11 +132,9 @@ function list(path) {
           if (scrollTop + windowHeight > scrollHeight - (Os.isMobile ? 130 : 80)) {
             if (window.scroll_status.loading_lock === !0) return
             window.scroll_status.loading_lock = !0
-            $(
-              `<div id="spinner" class="mdui-spinner mdui-spinner-colorful mdui-center"></div>`
-            ).insertBefore("#readme_md")
+            $(`<div class="center"><div id="spinner" class="loading-ring"><div></div><div></div><div></div><div></div></div></div>`).insertBefore("#count")
             let $list = $("#list")
-            requestListPath( path,
+            requestListPath(path,
               {
                 password: prevReqParams.password,
                 page_token: $list.data("nextPageToken"),
