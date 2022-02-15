@@ -4,7 +4,7 @@ export const authConfig = {
   "siteAvatar": "",
   "client_id": "",
   "client_secret": "",
-  "refresh_token": "", // auth token
+  "refresh_token": "",
   /**
   * Set up multiple Drives to be displayed; add multiples by format
   * [id]: It can be team folder id, subfolder id, or "root" (representing the root directory of personal disk);
