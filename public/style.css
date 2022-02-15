@@ -48,6 +48,10 @@ button {
   font-weight: bold;
 }
 
+button[disabled] {
+  background-color: var(--inputs-backgroud-color);
+}
+
 input[type='text'],
 input[type='password'],
 input[type='number'],
@@ -270,11 +274,11 @@ div.container > article {
   background-color: var(--cards-background-color)
 }
 
-div.container > article > section.input-group {
+div.container > article section.input-group {
   margin-bottom: 12px;
 }
 
-div.container > article > section.input-group > label{
+div.container > article section.input-group > label{
   display: block;
   color: var(--secondary-text-color);
   font-size: .8em;

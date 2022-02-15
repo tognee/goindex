@@ -13,6 +13,15 @@ const Os = {
   isIos: /(iPhone|iPod|iPad)/i.test(navigator.platform),
   isMobile: /Android|webOS|iPhone|iPad|iPod|iOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
 }
+
+const ext_code = "html|php|css|go|java|js|json|txt|sh|md"
+const ext_video = "mp4|webm|avi|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv"
+const ext_audio = "mp3|flac|wav|ogg|m4a"
+const ext_image = "bmp|jpg|jpeg|png|gif|svg"
+const ext_pdf = "pdf"
+
+const ext_all = `|${ext_code}|${ext_video}|${ext_audio}|${ext_image}|${ext_pdf}|`
+
 function getDocumentHeight() {
   return Math.max(
     document.body.scrollHeight,
@@ -24,8 +33,8 @@ function getDocumentHeight() {
   )
 }
 function render(path) {
-  if (path.indexOf("?") > 0) path = path.substr(0, path.indexOf("?"))
   $("title").html(`${document.siteName}`)
+  if (path.indexOf("?") > 0) path = path.substr(0, path.indexOf("?"))
   nav(path)
   let reg = /\/\d+:$/g
   if (path.match(reg) || path.substr(-1) == "/") {
@@ -52,13 +61,15 @@ function nav(path) {
   }
   html += `<a href="${rootPath}/" class="root-folder">${document.siteName}</a>`
   html += driveSelect
-  let arr = path.trim("/").split("/")
+  let arr = path.replace(/^\//, '').split("/")
+  console.log(arr)
   let p = "/"
   if (arr.length && arr[0].match(/\d+:$/g)) arr.shift() // Remove drive number from path
   for (let i in arr) {
     let n = arr[i]
     n = decodeURI(n)
     p += n + "/"
+    if (parseInt(i)+1 === arr.length && arr[arr.length-1] !== "") p = p.substr(0, p.length -1)
     if (n == "") break
     html += `<span class="material-icons" style="margin:0;">chevron_right</span><a href="${rootPath}${p}">${n}</a>`
   }
@@ -196,8 +207,7 @@ function append_files_to_list(path, files) {
       let c = "file"
 
       let ext = p.split(".").pop().toLowerCase()
-      if (
-        "|html|php|css|go|java|js|json|txt|sh|md|mp4|webm|avi|bmp|jpg|jpeg|png|gif|m4a|mp3|flac|wav|ogg|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|pdf|".indexOf(`|${ext}|`) >= 0) {
+      if (ext_all.indexOf(`|${ext}|`) >= 0) {
         targetFiles.push(filepath)
         p += "?a=view"
         c += " view"
@@ -253,6 +263,7 @@ function get_file(path, file, callback) {
     })
   }
 }
+
 function file(path) {
   let name = path.split("/").pop()
   let ext = name
@@ -261,22 +272,85 @@ function file(path) {
     .toLowerCase()
     .replace(`?a=view`, "")
     .toLowerCase()
-  if ("|html|php|css|go|java|js|json|txt|sh|md|".indexOf(`|${ext}|`) >= 0) {
-    return file_code(path)
-  }
-  if ("|mp4|webm|avi|".indexOf(`|${ext}|`) >= 0) {
-    return file_video(path)
-  }
-  if ("|mpg|mpeg|mkv|rm|rmvb|mov|wmv|asf|ts|flv|".indexOf(`|${ext}|`) >= 0) {
-    return file_video(path)
-  }
-  if ("|mp3|flac|wav|ogg|m4a|".indexOf(`|${ext}|`) >= 0) {
-    return file_audio(path)
-  }
-  if ("|bmp|jpg|jpeg|png|gif|".indexOf(`|${ext}|`) >= 0) {
+  if (`|${ext_image}|`.indexOf(`|${ext}|`) >= 0)
     return file_image(path)
+  if (`|${ext_code}|`.indexOf(`|${ext}|`) >= 0)
+    return file_code(path)
+  if (`|${ext_video}|`.indexOf(`|${ext}|`) >= 0)
+    return file_video(path)
+  if (`|${ext_audio}|`.indexOf(`|${ext}|`) >= 0)
+    return file_audio(path)
+  if (`|${ext_pdf}|`.indexOf(`|${ext}|`) >= 0)
+    return file_pdf(path)
+}
+function file_image(path) {
+  let url = window.location.origin + path
+  const currentPathname = window.location.pathname
+  const lastIndex = currentPathname.lastIndexOf("/")
+  const fatherPathname = currentPathname.slice(0, lastIndex + 1)
+  let target_children = localStorage.getItem(fatherPathname)
+  let targetText = ""
+  if (target_children) {
+    try {
+      target_children = JSON.parse(target_children)
+      if (!Array.isArray(target_children)) {
+        target_children = []
+      }
+    } catch (e) {
+      console.error(e)
+      target_children = []
+    }
+    if (target_children.length > 0 && target_children.includes(decodeURI(path))) {
+      let len = target_children.length
+      let cur = target_children.indexOf(path)
+      let prev_child = cur - 1 > -1 ? target_children[cur - 1] : null
+      let next_child = cur + 1 < len ? target_children[cur + 1] : null
+      targetText = `
+        <div style="display: flex; justify-content: space-between;">
+          <div>
+            ${
+              prev_child
+                ? `<button id="leftBtn" data-filepath="${prev_child}">Previous</button>`
+                : `<button disabled>Previous</button>`
+            }
+          </div>
+          <div>
+            ${
+              next_child
+                ? `<button id="rightBtn" data-filepath="${next_child}">Next</button>`
+                : `<button disabled>Next</button>`
+            }
+          </div>
+        </div>`
+    }
   }
-  if ("pdf" === ext) return file_pdf(path)
+  let content = `
+  <div>
+    <br>
+    <div style="width: 100%">
+      ${targetText}
+      <img style="width: 100%" src="${url}"/>
+    </div>
+    <br>
+    <div style="display: flex;align-items: center;">
+      <section class="input-group" style="flex-grow: 1;margin-right: 8px;">
+        <label for="downloadLink">Download Link</label>
+        <input name="downloadLink" type="text" value="${url}"/>
+      </section>
+      <a href="${url}"><i class="material-icons">file_download</i></a>
+    </div>
+  </div>`
+  $("#content").html(content)
+  $("#leftBtn, #rightBtn").click((e) => {
+    let target = $(e.target)
+    if (["I", "SPAN"].includes(e.target.nodeName)) {
+      target = $(e.target).parent()
+    }
+    const filepath = target.attr("data-filepath")
+    window.history.pushState(filepath, document.title, filepath+"?a=view")
+    nav(filepath)
+    file(filepath)
+  })
 }
 function file_code(path) {
   let type = {
@@ -416,75 +490,6 @@ function file_pdf(path) {
     .addClass("mdui-container-fluid")
     .css({ padding: 0 })
     .html(content)
-}
-function file_image(path) {
-  let url = window.location.origin + path
-  const currentPathname = window.location.pathname
-  const lastIndex = currentPathname.lastIndexOf("/")
-  const fatherPathname = currentPathname.slice(0, lastIndex + 1)
-  let target_children = localStorage.getItem(fatherPathname)
-  let targetText = ""
-  if (target_children) {
-    try {
-      target_children = JSON.parse(target_children)
-      if (!Array.isArray(target_children)) {
-        target_children = []
-      }
-    } catch (e) {
-      console.error(e)
-      target_children = []
-    }
-    if (target_children.length > 0 && target_children.includes(path)) {
-      let len = target_children.length
-      let cur = target_children.indexOf(path)
-      let prev_child = cur - 1 > -1 ? target_children[cur - 1] : null
-      let next_child = cur + 1 < len ? target_children[cur + 1] : null
-      targetText = `
-            <div class="mdui-container">
-                <div class="mdui-row-xs-2 mdui-m-b-1">
-                    <div class="mdui-col">
-                        ${
-                          prev_child
-                            ? `<button id="leftBtn" data-filepath="${prev_child}" class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple">Previous</button>`
-                            : `<button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" disabled>Previous</button>`
-                        }
-                    </div>
-                    <div class="mdui-col">
-                        ${
-                          next_child
-                            ? `<button id="rightBtn" data-filepath="${next_child}" class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple">Next</button>`
-                            : `<button class="mdui-btn mdui-btn-block mdui-color-theme-accent mdui-ripple" disabled>Next</button>`
-                        }
-                    </div>
-                </div>
-            </div>`
-    }
-  }
-  let content = `
-<div class="mdui-container-fluid">
-    <br>
-    <div id="imgWrap">
-        ${targetText}
-	    <img class="mdui-img-fluid" src="${url}"/>
-    </div>
-	<br>
-	<div class="mdui-textfield">
-	  <label class="mdui-textfield-label">Download Link</label>
-	  <input class="mdui-textfield-input" type="text" value="${url}"/>
-	</div>
-        <br>
-</div>
-<a href="${url}" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">file_download</i></a>`
-  $("#content").html(content)
-  $("#leftBtn, #rightBtn").click((e) => {
-    let target = $(e.target)
-    if (["I", "SPAN"].includes(e.target.nodeName)) {
-      target = $(e.target).parent()
-    }
-    const filepath = target.attr("data-filepath")
-    const direction = target.attr("data-direction")
-    file(filepath)
-  })
 }
 function formatDatetime(utc_datetime) {
   let iso_date = new Date(utc_datetime)
