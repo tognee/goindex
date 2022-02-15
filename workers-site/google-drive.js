@@ -109,7 +109,7 @@ export class GoogleDrive {
       if (auth) {
         try {
           const [received_user, received_pass] = atob(auth.split(' ').pop()).split(':')
-          return (users[received_user] && users[received_user] === received_pass) ? null : _401
+          return (users[received_user] !== undefined && users[received_user] === received_pass) ? null : _401
         } catch (e) { /* empty */ }
       }
     } else return null
