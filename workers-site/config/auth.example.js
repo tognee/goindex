@@ -38,13 +38,6 @@ export const authConfig = {
   * Another effect of this value is that if the number of files in the directory is greater than this value (i.e., if multiple pages need to be displayed), the results will be cached.
   */
   "files_list_page_size": 500,
-  /**
-  * The number of search results displayed per page. [Recommended value is between 50 and 1000].
-  * If this value is greater than 1000, it causes an error when requesting the drive API.
-  * If this value is too small, it causes the incremental loading to fail.
-  * The size of this value affects the responsiveness of the search.
-  */
-  "search_result_list_page_size": 50,
   // If you want to allow CORS, you can enable this.
   "enable_cors_file_down": false,
   /**
