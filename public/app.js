@@ -84,36 +84,36 @@ function requestListPath(path, params, resultCallback, authErrorCallback) {
 
 function list(path) {
   let content = `
-  <table id="contentTable">
-    <thead>
-      <tr>
-        <th>
+  <div role="grid" class="table" id="contentTable">
+    <header>
+      <div role="row" class="row">
+        <div role="gridcell" class="cell">
           File
           <span class="material-icons icon-sort" data-sort="name" data-order="more">expand_more</span>
-        </th>
-        <th class="right hide-on-mobile no-wrap">
+        </div>
+        <div role="gridcell" class="cell right hide-on-mobile no-wrap">
           Date Modified
           <span class="material-icons icon-sort" data-sort="name" data-order="more">expand_more</span>
-        </th>
-        <th class="right hide-on-mobile no-wrap">
+        </div>
+        <div role="gridcell" class="cell right hide-on-mobile no-wrap">
           Size
           <span class="material-icons icon-sort" data-sort="name" data-order="more">expand_more</span>
-        </th>
-      </tr>
-    </thead>
-    <tbody id="list"> </tbody>
-  </table>
+        </div>
+      </div>
+    </header>
+    <section id="list"> </section>
+  </div>
+  ${loading_bar}
   <div id="count" class="hidden">Total <span class="number"></span> Item</div>`
   $("#content").html(content)
   let password = localStorage.getItem("password" + path)
-
-  $("#list").html(`<tr><td colspan="3">${loading_bar}</td></tr>`)
 
   function successResultCallback(res, path, prevReqParams) {
     $("#list")
       .data("nextPageToken", res.nextPageToken)
       .data("curPageIndex", res.curPageIndex)
 
+    $("#loading-bar").remove()
     $("#spinner").remove()
     // it's a single page
     if (res.nextPageToken === null) {
@@ -173,7 +173,7 @@ function append_files_to_list(path, files) {
   let $list = $("#list")
   let is_lastpage_loaded = null === $list.data("nextPageToken")
   let is_firstpage = "0" == $list.data("curPageIndex")
-  let html = ""
+  let html = ''
   let targetFiles = []
   for (let i in files) {
     let item = files[i]
@@ -183,16 +183,16 @@ function append_files_to_list(path, files) {
     item.size = formatFileSize(item.size)
     if (item.mimeType == "application/vnd.google-apps.folder") {
       html += `
-        <tr class="list_item" onclick="window.location=\`${p.replace('`', '%60').replace('${', '%24%7B')}\`">
-          <td title="${item.name}">
+        <a role="row" class="row list_item" href="${p.replace('"', '%22')}">
+          <div role="gridcell" class="cell" title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">folder_open</span>
               <span class="filename">${item.name}</span>
             </div>
-          </td>
-          <td class="right hide-on-mobile no-wrap"><span>${item["modifiedTime"]}</span></td>
-          <td class="right hide-on-mobile no-wrap"><span>${item["size"]}</span></td>
-        </tr>`
+          </div>
+          <div role="gridcell" class="cell right hide-on-mobile no-wrap"><span>${item["modifiedTime"]}</span></div>
+          <div role="gridcell" class="cell right hide-on-mobile no-wrap"><span>${item["size"]}</span></div>
+        </a>`
     } else {
       let p = path + item.name
       const filepath = path + item.name
@@ -206,16 +206,16 @@ function append_files_to_list(path, files) {
         c += " view"
       }
       html += `
-        <tr gd-type="${item.mimeType}" class="list_item ${c}" onclick="window.location=\`${p.replace('`', '%60').replace('${', '%24%7B')}\`">
-          <td title="${item.name}">
+        <a role="row" gd-type="${item.mimeType}" class="row list_item ${c}" href="${p.replace('"', '%22')}">
+          <div role="gridcell" class="cell" title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">insert_drive_file</span>
               <span class="filename">${item.name}</span>
             </div>
-          </td>
-          <td class="right hide-on-mobile no-wrap"><span>${item["modifiedTime"]}</span></td>
-          <td class="right hide-on-mobile no-wrap"><span>${item["size"]}</span></td>
-        </tr>`
+          </div>
+          <div role="gridcell" class="cell right hide-on-mobile no-wrap"><span>${item["modifiedTime"]}</span></div>
+          <div role="gridcell" class="cell right hide-on-mobile no-wrap"><span>${item["size"]}</span></div>
+        </a>`
     }
   }
   if (targetFiles.length > 0) {
@@ -240,7 +240,7 @@ function append_files_to_list(path, files) {
     $("#count")
       .removeClass("hidden")
       .find(".number")
-      .text($list.find("tr.list_item").length)
+      .text($list.find("a.list_item").length)
   }
 }
 

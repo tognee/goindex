@@ -120,7 +120,7 @@ async function handleEvent(event) {
     */
 
     // Expected path format
-    const common_reg = /^\/(?<drive>\d+:\/)?(?<path>.*)$/g;
+    const common_reg = /^\/(?<drive>\d+:\/)?(?<path>.*)$/g
     try {
       let order
       if (!path.match(common_reg)) return redirectToIndexPage()
@@ -145,17 +145,17 @@ async function handleEvent(event) {
     // basic auth
     const basic_auth_res = await gd.basicAuthResponse(event)
 
-    path = path.replace(gd.url_path_prefix, '') || '/';
+    path = path.replace(gd.url_path_prefix, '') || '/'
     if (request.method == 'POST') {
-      return basic_auth_res || apiRequest(request, gd);
+      return basic_auth_res || apiRequest(request, gd)
     }
-    let action = url.searchParams.get('a');
+    let action = url.searchParams.get('a')
 
     if (path.substr(-1) == '/' || action != null) {
       return basic_auth_res || generateBasePage(event, gd.order, {root_type: gd.root_type})
     } else {
       if (path.split('/').pop().toLowerCase() == ".password") {
-        return basic_auth_res || new Response("", {status: 404});
+        return basic_auth_res || new Response("", {status: 404})
       }
       let file = await gd.file(path)
       if (file.mimeType === "application/vnd.google-apps.folder"){

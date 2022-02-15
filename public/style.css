@@ -164,7 +164,7 @@ select {
 }
 
 /* Header */
-header {
+body > header {
   height: 56px;
   display: flex;
   overflow: hidden;
@@ -173,18 +173,18 @@ header {
   align-items: center;
   padding: 0% 5%;
 }
-header > a, header > a > img {
+body > header > a, header > a > img {
   height: 40px;
   border-radius: 50%;
 }
 
 /* Header navbar */
-header .navbar{
+body > header .navbar{
   display: flex;
   align-items: center;
   flex-grow: 2;
 }
-header .navbar.withAvatar {
+body > header .navbar.withAvatar {
   margin-left: 8px;
 }
 a {
@@ -192,7 +192,7 @@ a {
   text-decoration: none;
   user-select: none;
 }
-header .navbar > a {
+body > header .navbar > a {
   font-size: 14.5px;
   padding: 0 16px;
   line-height: 30px;
@@ -201,7 +201,7 @@ header .navbar > a {
   border: 1px solid var(--breadcrumbs-border-color);
   white-space: nowrap;
 }
-header .navbar > a:last-of-type, header .navbar > a:hover {
+body > header .navbar > a:last-of-type, header .navbar > a:hover {
   background-color: #1e89f2;
   color: #ffff;
 }
@@ -245,24 +245,31 @@ div.container > article > section.input-group > label{
   width: 100%;
   border-spacing: 0;
 }
-table th{
+.table { display: table; }
+.row {
+  display: table-row;
   text-align: left;
-}
-table tr{
   height: 48px;
+  vertical-align: inherit;
 }
-table tr .no-wrap { white-space: nowrap; }
-table tr .no-wrap span { margin-left: 8px; }
+.cell {
+  display: table-cell;
+  vertical-align: inherit;
+}
+.table header { display: table-header-group; vertical-align: middle; }
+.table section { display: table-row-group; vertical-align: middle; }
+.table footer { display: table-footer-group; vertical-align: middle; }
+.table header .row {
+  font-weight: bold;
+}
+.row .no-wrap { white-space: nowrap; }
+.row .no-wrap span { margin-left: 8px; }
+.row .right{ text-align: right; }
 .filename { word-break: break-all; }
-table tr td:first-child, table tr th:first-child{ padding-left: 8px }
-table tr td:last-child, table tr th:last-child{ padding-right: 8px }
-table tr.list_item{ cursor: pointer; }
-table tr.list_item:hover {
-  background-color: var(--table-highlight)
-}
-table td.right, table th.right{
-  text-align: right;
-}
+.row .cell:first-child { padding-left: 8px }
+.row .cell:last-child { padding-right: 8px }
+.row.list_item{ cursor: pointer; }
+.row.list_item:hover { background-color: var(--table-highlight) }
 
 #count{
   text-align: center;
