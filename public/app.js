@@ -62,7 +62,6 @@ function nav(path) {
   html += `<a href="${rootPath}/" class="root-folder">${document.siteName}</a>`
   html += driveSelect
   let arr = path.replace(/^\//, '').split("/")
-  console.log(arr)
   let p = "/"
   if (arr.length && arr[0].match(/\d+:$/g)) arr.shift() // Remove drive number from path
   for (let i in arr) {
