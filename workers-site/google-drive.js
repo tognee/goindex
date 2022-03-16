@@ -126,7 +126,7 @@ export class GoogleDrive {
     if (res.status === 403){
       let body = JSON.parse(res.body)
       let errors = body.error.errors.map(e => e.reason)
-      if (errors.includes('cannotDownloadAbusiveFile')){
+      if (errors.includes('cannotDownloadAbusiveFile') && this.authConfig.enable_infected_file_download){
         url += '&acknowledgeAbuse=true'
         res = await fetch(url, requestOption)
       }
