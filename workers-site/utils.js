@@ -10,11 +10,11 @@ export function variableParser(html, current_drive_order = 0, model = {}){
   window.UI = JSON.parse('${JSON.stringify(uiConfig)}');
 </script>`)
   .replace('{{ PAGE_TITLE }}', authConfig.siteName)
-  if (authConfig.favicon)
+  if (authConfig.siteFavicon)
     data = data.replace('{{ PAGE_FAVICON }}', authConfig.siteFavicon)
   else
     data = data.replace('{{ PAGE_FAVICON }}', "/favicon.png")
-  if (authConfig.avatar)
+  if (authConfig.siteAvatar)
     data = data.replace('{{ PAGE_AVATAR }}', authConfig.siteAvatar)
   else
     data = data.replace('{{ PAGE_AVATAR }}', "/avatar.png")
