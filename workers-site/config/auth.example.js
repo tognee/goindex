@@ -46,4 +46,6 @@ export const authConfig = {
   * Note: If you enable password authentication with .password files, an additional query will be added to each directory to check whether a .password file exists.
   */
   enable_password_file_verify: false,
+  // When set to true you can download files that Google has flagged as abusive.
+  enable_abusive_file_download: false,
 }

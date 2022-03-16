@@ -117,15 +117,28 @@ export class GoogleDrive {
   }
 
   async down(id, range = '', inline = false, filename = false) {
-    let url = `https://www.googleapis.com/drive/v3/files/${id}?alt=media`;
-    let requestOption = await this.requestOption();
-    requestOption.headers['Range'] = range;
-    let res = await fetch(url, requestOption);
+    let url = `https://www.googleapis.com/drive/v3/files/${id}?alt=media`
+    let requestOption = await this.requestOption()
+    requestOption.headers['Range'] = range
+    let res = await fetch(url, requestOption)
+
+    // Try to solve errors
+    if (res.status === 403){
+      let body = JSON.parse(res.body)
+      let errors = body.error.errors.map(e => e.reason)
+      if (errors.includes('cannotDownloadAbusiveFile')){
+        url += '&acknowledgeAbuse=true'
+        res = await fetch(url, requestOption)
+      }
+    }
+
+    // Generate response and add response flags
     const {headers} = res = new Response(res.body, res)
-    this.authConfig.enable_cors_file_down && headers.append('Access-Control-Allow-Origin', '*');
-    inline === true && headers.set('Content-Disposition', 'inline');
-    filename && headers.set('Content-Disposition', 'attachment; filename="'+filename+'"');
-    return res;
+    this.authConfig.enable_cors_file_down && headers.append('Access-Control-Allow-Origin', '*')
+    inline && headers.set('Content-Disposition', 'inline')
+    filename && headers.set('Content-Disposition', `attachment; filename="${filename}"`)
+
+    return res
   }
 
   async file(path) {
