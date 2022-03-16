@@ -37,13 +37,13 @@ export const authConfig = {
   * If this value is too small, it causes the incremental loading to fail.
   * Another effect of this value is that if the number of files in the directory is greater than this value (i.e., if multiple pages need to be displayed), the results will be cached.
   */
-  "files_list_page_size": 500,
+  files_list_page_size: 500,
   // If you want to allow CORS, you can enable this.
-  "enable_cors_file_down": false,
+  enable_cors_file_down: false,
   /**
   * The basic auth above already includes on-disk global protection, so the default is not to authenticate the password in the .password file. So by default, passwords in .password files are no longer authenticated;
   * If you still need to protect certain directories on top of the global auth using the .password file, set this option to true.
   * Note: If you enable password authentication with .password files, an additional query will be added to each directory to check whether a .password file exists.
   */
-  "enable_password_file_verify": false
+  enable_password_file_verify: false,
 }
