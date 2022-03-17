@@ -123,17 +123,20 @@ export class GoogleDrive {
     let res = await fetch(url, requestOption)
 
     // Try to solve errors
+    let errorBody
     if (res.status === 403){
-      let body = JSON.parse(res.body)
+      errorBody = await res.text()
+      let body = JSON.parse(errorBody)
       let errors = body.error.errors.map(e => e.reason)
-      if (errors.includes('cannotDownloadAbusiveFile') && this.authConfig.enable_infected_file_download){
+      if (errors.includes('cannotDownloadAbusiveFile') && this.authConfig.enable_abusive_file_download){
         url += '&acknowledgeAbuse=true'
         res = await fetch(url, requestOption)
+        errorBody = null
       }
     }
 
     // Generate response and add response flags
-    const {headers} = res = new Response(res.body, res)
+    const {headers} = res = new Response(errorBody || res.body , res)
     this.authConfig.enable_cors_file_down && headers.append('Access-Control-Allow-Origin', '*')
     inline && headers.set('Content-Disposition', 'inline')
     filename && headers.set('Content-Disposition', `attachment; filename="${filename}"`)
