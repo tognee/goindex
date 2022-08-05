@@ -18,6 +18,7 @@
   - Change `siteName`, `siteFavicon` and `siteAvatar` as you like
   - Add your `roots`, the folder ids are taken from the url of the folder on Google Drive
 - Rename `workers-site/config/ui.example.js` into `ui.js` and then edit it as you like
+- Run `wrangler publish` to upload the app
 
 ## Thanks to:
 - [donwa](https://github.com/donwa)
