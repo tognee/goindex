@@ -1,6 +1,6 @@
 account_id = ""
 name = "goindex"
-type = "webpack"
+main = "workers-site/index.js"
 workers_dev = true
 site = { bucket = "./public" }
 compatibility_date = "2022-02-13"
