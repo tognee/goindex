@@ -184,13 +184,13 @@ function append_files_to_list(path, files) {
   let targetFiles = []
   for (let i in files) {
     let item = files[i]
-    let p = path + item.name + "/"
+    let p = path + encodeURIComponent(item.name) + "/"
     if (item.size == undefined) item.size = ""
     item.modifiedTime = formatDatetime(item.modifiedTime)
     item.size = formatFileSize(item.size)
     if (item.mimeType == "application/vnd.google-apps.folder") {
       html += `
-        <a role="row" class="row list_item" href="${p.replace('"', '%22')}">
+        <a role="row" class="row list_item" href="${p}">
           <div role="gridcell" class="cell" title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">folder_open</span>
@@ -201,7 +201,7 @@ function append_files_to_list(path, files) {
           <div role="gridcell" class="cell right hide-on-mobile no-wrap"><span>${item["size"]}</span></div>
         </a>`
     } else {
-      let p = path + item.name
+      let p = path + encodeURIComponent(item.name)
       const filepath = path + item.name
       let c = "file"
 
@@ -212,7 +212,7 @@ function append_files_to_list(path, files) {
         c += " view"
       }
       html += `
-        <a role="row" gd-type="${item.mimeType}" class="row list_item ${c}" href="${p.replace('"', '%22')}">
+        <a role="row" gd-type="${item.mimeType}" class="row list_item ${c}" href="${p}">
           <div role="gridcell" class="cell" title="${item.name}">
             <div class="icon-file">
               <span class="material-icons">insert_drive_file</span>
